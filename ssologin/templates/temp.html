@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>跳转中...</title>
+</head>
+<body>
+跳转中，请稍后...
+
+<script src="http://lib.sinaapp.com/js/jquery/2.0.2/jquery-2.0.2.min.js"></script>
+<script>
+
+var csrftoken = $('meta[name=csrf-token]').attr('content')
+    $.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type)) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken)
+        }
+    }
+});
+
+    verify();
+    function verify() {
+        var token = '{{ token }}';
+        var callback = '{{ callback }}';
+        var data = {};
+        if (token){
+            data = {
+                    'token': token,
+                    'callback': callback
+                }
+        }
+        else {
+            data = {
+                    'token': '',
+                    'callback': callback
+                }
+        }
+        $.ajax(
+            {
+                url:'/verify/',
+                type:'POST',
+                data:data,
+                success:function (data) {
+                    window.location.href = callback + '?token='+data['token'] + '&code=' + data['code'];
+                },
+                error:function (err) {
+                    console.log('error')
+                }
+            }
+        )
+    }
+
+</script>
+</body>
+</html>
